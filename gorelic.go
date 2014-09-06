@@ -1,11 +1,17 @@
 package beego_gorelic
 
 import (
+	"strings"
+	"time"
+
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/context"
 	metrics "github.com/yvasiyarov/go-metrics"
 	"github.com/yvasiyarov/gorelic"
-	"time"
+)
+
+const (
+	SEPARATOR = "-"
 )
 
 var agent *gorelic.Agent
@@ -35,14 +41,22 @@ func InitNewrelicAgent() {
 	agent.HTTPTimer = metrics.NewTimer()
 	agent.CollectHTTPStat = true
 
-	if beego.AppConfig.String("runmode") == "dev" {
+	if beego.RunMode == "dev" {
 		agent.Verbose = true
 	}
 	if verbose, err := beego.AppConfig.Bool("NewrelicVerbose"); err == nil {
 		agent.Verbose = verbose
 	}
 
-	agent.NewrelicName = beego.AppConfig.String("appname")
+	nameParts := []string{beego.AppConfig.String("appname")}
+	switch strings.ToLower(beego.AppConfig.String("NewrelicAppnameRunmode")) {
+	case "append":
+		nameParts = append(nameParts, beego.RunMode)
+
+	case "prepend":
+		nameParts = append([]string{beego.RunMode}, nameParts...)
+	}
+	agent.NewrelicName = strings.Join(nameParts, SEPARATOR)
 	agent.Run()
 
 	beego.InsertFilter("*", beego.BeforeRouter, InitNewRelicTimer)
