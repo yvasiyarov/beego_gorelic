@@ -59,8 +59,8 @@ func InitNewrelicAgent() {
 	agent.NewrelicName = strings.Join(nameParts, SEPARATOR)
 	agent.Run()
 
-	beego.InsertFilter("*", beego.BeforeRouter, InitNewRelicTimer)
-	beego.InsertFilter("*", beego.FinishRouter, ReportMetricsToNewrelic)
+	beego.InsertFilter("*", beego.BeforeRouter, InitNewRelicTimer, false)
+	beego.InsertFilter("*", beego.FinishRouter, ReportMetricsToNewrelic, false)
 
 	beego.Info("NewRelic agent started")
 }
