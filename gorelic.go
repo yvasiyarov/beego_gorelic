@@ -41,7 +41,7 @@ func InitNewrelicAgent() {
 	agent.HTTPTimer = metrics.NewTimer()
 	agent.CollectHTTPStat = true
 
-	if beego.RunMode == "dev" {
+	if beego.BConfig.RunMode == "dev" {
 		agent.Verbose = true
 	}
 	if verbose, err := beego.AppConfig.Bool("NewrelicVerbose"); err == nil {
@@ -51,10 +51,10 @@ func InitNewrelicAgent() {
 	nameParts := []string{beego.AppConfig.String("appname")}
 	switch strings.ToLower(beego.AppConfig.String("NewrelicAppnameRunmode")) {
 	case "append":
-		nameParts = append(nameParts, beego.RunMode)
+		nameParts = append(nameParts, beego.BConfig.RunMode)
 
 	case "prepend":
-		nameParts = append([]string{beego.RunMode}, nameParts...)
+		nameParts = append([]string{beego.BConfig.RunMode}, nameParts...)
 	}
 	agent.NewrelicName = strings.Join(nameParts, SEPARATOR)
 	agent.Run()
