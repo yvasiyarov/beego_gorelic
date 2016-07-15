@@ -28,8 +28,8 @@ func ReportMetricsToNewrelic(ctx *context.Context) {
 }
 
 func InitNewrelicAgent() {
-
-	license := beego.AppConfig.String("NewrelicLicense")
+	var appname string
+	license := beego.AppConfig.String("newrelicLicense")
 	if license == "" {
 		beego.Warn("Please specify NewRelic license in the application config: NewrelicLicense=7bceac019c7dcafae1ef95be3e3a3ff8866de245")
 		return
@@ -44,12 +44,18 @@ func InitNewrelicAgent() {
 	if beego.BConfig.RunMode == "dev" {
 		agent.Verbose = true
 	}
-	if verbose, err := beego.AppConfig.Bool("NewrelicVerbose"); err == nil {
+	if verbose, err := beego.AppConfig.Bool("newrelicVerbose"); err == nil {
 		agent.Verbose = verbose
 	}
+	// Checking if New Relic appname overrides the default appname
+	appname = beego.AppConfig.String("newrelicAppname")
+	if appname == "" {
+		// If not set revert to using beego appname as default
+		appname = beego.AppConfig.String("appname")
+	}
+	nameParts := []string{appname}
 
-	nameParts := []string{beego.AppConfig.String("appname")}
-	switch strings.ToLower(beego.AppConfig.String("NewrelicAppnameRunmode")) {
+	switch strings.ToLower(beego.AppConfig.String("newrelicAppnameRunmode")) {
 	case "append":
 		nameParts = append(nameParts, beego.BConfig.RunMode)
 
